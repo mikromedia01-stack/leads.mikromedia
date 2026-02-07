@@ -4,7 +4,7 @@ const {
     getLeads, createLead, updateLead, deleteLead,
     importLeadsCSV, importLeadsGoogleSheet,
     previewCSV, previewGoogleSheet,
-    bulkAssignLeads, bulkDeleteLeads, bulkUpdateStatus
+    bulkAssignLeads, bulkDeleteLeads, bulkUpdateStatus, clearAllLeads
 } = require('../controllers/leadController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -21,6 +21,7 @@ router.route('/')
 router.post('/bulk-assign', authorize('admin', 'manager'), bulkAssignLeads);
 router.post('/bulk-delete', authorize('admin', 'manager'), bulkDeleteLeads);
 router.post('/bulk-status-update', authorize('admin', 'manager'), bulkUpdateStatus);
+router.post('/clear-all', authorize('admin'), clearAllLeads);
 
 router.route('/:id')
     .put(updateLead)

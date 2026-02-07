@@ -125,6 +125,22 @@ const Leads = () => {
         }
     };
 
+    const handleClearAll = async () => {
+        if (!window.confirm('CRITICAL: This will permanently delete ALL leads in the system. This action cannot be undone. Are you absolutely sure?')) return;
+
+        // Double confirmation for safety
+        const confirmText = window.prompt('Type "DELETE ALL" to confirm:');
+        if (confirmText !== 'DELETE ALL') return toast.error('Confirmation failed');
+
+        try {
+            await API.post('/leads/clear-all');
+            toast.success('Database cleared successfully');
+            fetchLeads();
+        } catch (error) {
+            toast.error('Failed to clear database');
+        }
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -162,6 +178,11 @@ const Leads = () => {
                     <p style={{ color: '#64748b' }}>Track and manage your potential customers</p>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
+                    {user.role === 'admin' && (
+                        <button className="btn btn-danger" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={handleClearAll}>
+                            <FiTrash2 /> Clear Database
+                        </button>
+                    )}
                     {(user.role === 'admin' || user.role === 'manager') && (
                         <button className="btn btn-secondary" onClick={() => setShowImportModal(true)}>
                             <FiUpload /> Import

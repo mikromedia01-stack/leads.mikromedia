@@ -179,6 +179,15 @@ const bulkDeleteLeads = async (req, res) => {
     }
 };
 
+const clearAllLeads = async (req, res) => {
+    try {
+        await Lead.deleteMany({});
+        res.json({ message: 'All leads have been cleared successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const bulkUpdateStatus = async (req, res) => {
     try {
         const { leadIds, status } = req.body;
@@ -318,5 +327,5 @@ module.exports = {
     getLeads, createLead, updateLead, deleteLead,
     importLeadsCSV, importLeadsGoogleSheet,
     previewCSV, previewGoogleSheet,
-    bulkAssignLeads, bulkDeleteLeads, bulkUpdateStatus
+    bulkAssignLeads, bulkDeleteLeads, bulkUpdateStatus, clearAllLeads
 };
