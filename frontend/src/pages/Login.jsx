@@ -123,15 +123,6 @@ const Login = () => {
                     </button>
                     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-                    <div style={{ marginTop: '2rem', padding: '1rem', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #dcfce7', fontSize: '0.85rem', color: '#166534' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 600, alignItems: 'center' }}>
-                            <FiAlertCircle /> Demo Credentials
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '4px', opacity: 0.9 }}>
-                            <div><strong>User:</strong> admin@mikromedia.com</div>
-                            <div><strong>Pass:</strong> password123</div>
-                        </div>
-                    </div>
                 </form>
             </motion.div>
         </div>
