@@ -7,7 +7,7 @@ const leadSchema = mongoose.Schema({
     source: { type: String, default: 'Manual' },
     status: {
         type: String,
-        enum: ['New', 'Contacted', 'Follow-Up', 'Interested', 'Converted', 'Lost', 'Prospect', 'Customer'],
+        enum: ['New', 'Contacted', 'Follow-Up', 'Interested', 'Converted', 'Lost', 'Prospect', 'Customer', 'WhatsApp'],
         default: 'New'
     },
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

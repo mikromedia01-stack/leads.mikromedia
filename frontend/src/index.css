@@ -370,6 +370,11 @@ h6 {
   color: #065f46;
 }
 
+.status-whatsapp {
+  background: #dcfce7;
+  color: #15803d;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {

@@ -160,7 +160,7 @@ const Leads = () => {
 
             {/* Status Tabs */}
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
-                {['All', 'New', 'Prospect', 'Customer'].map((t) => (
+                {['All', 'New', 'Prospect', 'Customer', 'WhatsApp'].map((t) => (
                     <button
                         key={t}
                         onClick={() => { setTab(t); setPage(1); }}
@@ -219,6 +219,7 @@ const Leads = () => {
                         >
                             <option value="All">All Statuses</option>
                             <option value="New">New</option>
+                            <option value="WhatsApp">WhatsApp</option>
                             <option value="Prospect">Prospect</option>
                             <option value="Customer">Customer</option>
                             <option value="Contacted">Contacted</option>
@@ -426,6 +427,7 @@ const Leads = () => {
                                     <label className="input-label">Status</label>
                                     <select className="form-input" name="status" defaultValue={currentLead?.status || 'New'}>
                                         <option value="New">New</option>
+                                        <option value="WhatsApp">WhatsApp</option>
                                         <option value="Prospect">Prospect</option>
                                         <option value="Customer">Customer</option>
                                         <option value="Contacted">Contacted</option>
