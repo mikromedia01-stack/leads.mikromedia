@@ -179,6 +179,24 @@ const bulkDeleteLeads = async (req, res) => {
     }
 };
 
+const bulkUpdateStatus = async (req, res) => {
+    try {
+        const { leadIds, status } = req.body;
+        if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0) {
+            return res.status(400).json({ message: 'No leads selected' });
+        }
+        if (!status) return res.status(400).json({ message: 'Status is required' });
+
+        await Lead.updateMany(
+            { _id: { $in: leadIds } },
+            { $set: { status } }
+        );
+        res.json({ message: `Successfully updated status for ${leadIds.length} leads` });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const createLead = async (req, res) => {
     try {
         const { name, phone, email, source, status, assignedTo, notes } = req.body;
@@ -300,5 +318,5 @@ module.exports = {
     getLeads, createLead, updateLead, deleteLead,
     importLeadsCSV, importLeadsGoogleSheet,
     previewCSV, previewGoogleSheet,
-    bulkAssignLeads, bulkDeleteLeads
+    bulkAssignLeads, bulkDeleteLeads, bulkUpdateStatus
 };

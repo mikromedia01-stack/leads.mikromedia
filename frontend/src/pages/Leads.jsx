@@ -27,6 +27,8 @@ const Leads = () => {
     const [selectedLeads, setSelectedLeads] = useState([]);
     const [isBulkAssigning, setIsBulkAssigning] = useState(false);
     const [bulkAssignUser, setBulkAssignUser] = useState('');
+    const [isBulkUpdatingStatus, setIsBulkUpdatingStatus] = useState(false);
+    const [bulkUpdateStatusVal, setBulkUpdateStatusVal] = useState('');
 
     const fetchLeads = async () => {
         setLoading(true);
@@ -107,6 +109,19 @@ const Leads = () => {
             fetchLeads();
         } catch (error) {
             toast.error('Bulk assign failed');
+        }
+    };
+
+    const handleBulkUpdateStatus = async () => {
+        if (!bulkUpdateStatusVal) return toast.error('Select a status');
+        try {
+            await API.post('/leads/bulk-status-update', { leadIds: selectedLeads, status: bulkUpdateStatusVal });
+            toast.success('Status updated');
+            setIsBulkUpdatingStatus(false);
+            setBulkUpdateStatusVal('');
+            fetchLeads();
+        } catch (error) {
+            toast.error('Bulk status update failed');
         }
     };
 
@@ -280,10 +295,35 @@ const Leads = () => {
                                             <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.85rem', height: '32px' }} onClick={handleBulkAssign}>Apply</button>
                                             <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.85rem', height: '32px' }} onClick={() => setIsBulkAssigning(false)}>Cancel</button>
                                         </div>
+                                    ) : isBulkUpdatingStatus ? (
+                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'white', padding: '4px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                                            <select
+                                                className="form-input"
+                                                style={{ margin: 0, padding: '6px', fontSize: '0.9rem', border: 'none', background: 'transparent', width: '150px' }}
+                                                value={bulkUpdateStatusVal}
+                                                onChange={e => setBulkUpdateStatusVal(e.target.value)}
+                                            >
+                                                <option value="">Select Status...</option>
+                                                <option value="New">New</option>
+                                                <option value="WhatsApp">WhatsApp</option>
+                                                <option value="Prospect">Prospect</option>
+                                                <option value="Contacted">Contacted</option>
+                                                <option value="Interested">Interested</option>
+                                                <option value="Converted">Converted</option>
+                                                <option value="Lost">Lost</option>
+                                            </select>
+                                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.85rem', height: '32px' }} onClick={handleBulkUpdateStatus}>Update</button>
+                                            <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.85rem', height: '32px' }} onClick={() => setIsBulkUpdatingStatus(false)}>Cancel</button>
+                                        </div>
                                     ) : (
-                                        <button className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.9rem', background: 'white', borderColor: '#bfdbfe', color: '#1e40af' }} onClick={() => setIsBulkAssigning(true)}>
-                                            Assign To...
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                            <button className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.9rem', background: 'white', borderColor: '#bfdbfe', color: '#1e40af' }} onClick={() => setIsBulkAssigning(true)}>
+                                                Assign To...
+                                            </button>
+                                            <button className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.9rem', background: 'white', borderColor: '#bfdbfe', color: '#1e40af' }} onClick={() => setIsBulkUpdatingStatus(true)}>
+                                                Change Status
+                                            </button>
+                                        </div>
                                     )}
                                     <button className="btn btn-danger" style={{ padding: '8px 16px', fontSize: '0.9rem' }} onClick={handleBulkDelete}>
                                         <FiTrash2 /> Delete
@@ -402,29 +442,40 @@ const Leads = () => {
 
             {/* Modal for Add/Edit */}
             {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal-container" onClick={e => e.stopPropagation()}>
-                        <h2 style={{ marginBottom: '1.5rem' }}>{currentLead ? 'Edit Lead' : 'Create New Lead'}</h2>
-                        <form onSubmit={handleSave}>
-                            <div className="input-group">
+                <div className="modal-overlay" onClick={() => { setShowModal(false); setCurrentLead(null); }}>
+                    <div className="modal-container" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px', width: '95%' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                            <div style={{ width: '64px', height: '64px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', fontSize: '1.75rem' }}>
+                                {currentLead ? <FiEdit2 /> : <FiPlus />}
+                            </div>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>{currentLead ? 'Edit Lead' : 'Add New Lead'}</h2>
+                            <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Fill in the details to manage your lead pipeline</p>
+                        </div>
+
+                        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div className="input-group" style={{ marginBottom: 0 }}>
                                 <label className="input-label">Full Name</label>
-                                <input className="form-input" name="name" placeholder="John Doe" defaultValue={currentLead?.name} required />
+                                <input className="form-input" name="name" defaultValue={currentLead?.name} required placeholder="Enter lead name..." />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div className="input-group">
-                                    <label className="input-label">Phone</label>
-                                    <input className="form-input" name="phone" placeholder="+1234567890" defaultValue={currentLead?.phone} required />
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                <div className="input-group" style={{ marginBottom: 0 }}>
+                                    <label className="input-label">Phone Number</label>
+                                    <input className="form-input" name="phone" defaultValue={currentLead?.phone} placeholder="+91 ..." />
                                 </div>
-                                <div className="input-group">
-                                    <label className="input-label">Email</label>
-                                    <input className="form-input" name="email" placeholder="john@example.com" defaultValue={currentLead?.email} />
+                                <div className="input-group" style={{ marginBottom: 0 }}>
+                                    <label className="input-label">Email Address</label>
+                                    <input className="form-input" type="email" name="email" defaultValue={currentLead?.email} placeholder="email@example.com" />
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div className="input-group">
-                                    <label className="input-label">Status</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                <div className="input-group" style={{ marginBottom: 0 }}>
+                                    <label className="input-label">Source</label>
+                                    <input className="form-input" name="source" defaultValue={currentLead?.source || 'Manual'} placeholder="Source..." />
+                                </div>
+                                <div className="input-group" style={{ marginBottom: 0 }}>
+                                    <label className="input-label">Initial Status</label>
                                     <select className="form-input" name="status" defaultValue={currentLead?.status || 'New'}>
                                         <option value="New">New</option>
                                         <option value="WhatsApp">WhatsApp</option>
@@ -437,48 +488,32 @@ const Leads = () => {
                                         <option value="Lost">Lost</option>
                                     </select>
                                 </div>
-
-                                <div className="input-group">
-                                    <label className="input-label">Source</label>
-                                    <select className="form-input" name="source" defaultValue={currentLead?.source || 'Manual'}>
-                                        <option value="Manual">Manual</option>
-                                        <option value="Ads">Ads</option>
-                                        <option value="Referral">Referral</option>
-                                        <option value="Website">Website</option>
-                                        <option value="Google Sheet">Google Sheet</option>
-                                        <option value="CSV Import">CSV Import</option>
-                                    </select>
-                                </div>
                             </div>
 
                             {(user.role === 'admin' || user.role === 'manager') && (
-                                <div className="input-group">
-                                    <label className="input-label">Assign To</label>
-                                    <select
-                                        className="form-input"
-                                        name="assignedTo"
-                                        multiple
-                                        style={{ height: '100px' }}
-                                        defaultValue={currentLead?.assignedTo?.map(u => u._id) || []}
-                                    >
+                                <div className="input-group" style={{ marginBottom: 0 }}>
+                                    <label className="input-label">Assign To Team Members</label>
+                                    <select className="form-input" name="assignedTo" multiple style={{ height: '120px', cursor: 'pointer' }} defaultValue={currentLead?.assignedTo?.map(u => u._id) || []}>
                                         {users.map(u => (
-                                            <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
+                                            <option key={u._id} value={u._id}>
+                                                {u.name} ({u.role})
+                                            </option>
                                         ))}
                                     </select>
-                                    <small style={{ color: '#94a3b8' }}>Hold Ctrl/Cmd to select multiple. Current: {
-                                        // Quick debug helper or leave empty
-                                    }</small>
+                                    <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>Tip: Hold Ctrl (Windows) or Cmd (Mac) to select multiple</p>
                                 </div>
                             )}
 
-                            <div className="input-group">
-                                <label className="input-label">Notes</label>
-                                <textarea className="form-input" name="notes" placeholder="Enter notes..." defaultValue={currentLead?.notes} rows="3"></textarea>
+                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                <label className="input-label">Internal Notes</label>
+                                <textarea className="form-input" name="notes" defaultValue={currentLead?.notes} rows="3" placeholder="Additional context about this lead..."></textarea>
                             </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary">Save Changes</button>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => { setShowModal(false); setCurrentLead(null); }}>Cancel</button>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 2 }}>
+                                    {currentLead ? 'Update Details' : 'Save Lead'}
+                                </button>
                             </div>
                         </form>
                     </div>
