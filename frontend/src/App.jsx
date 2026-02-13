@@ -1,11 +1,15 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Leads from './pages/Leads';
-import Tasks from './pages/Tasks';
-import Users from './pages/Users'; // Only relevant for admin
+import { lazy, Suspense } from 'react';
 import Layout from './components/Layout';
+
+import LoadingSpinner from './components/LoadingSpinner';
+
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Leads = lazy(() => import('./pages/Leads'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const Users = lazy(() => import('./pages/Users'));
 
 // Protected Route Component
 const ProtectedRoute = ({ allowedRoles }) => {
@@ -24,26 +28,28 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
+    <Suspense fallback={<LoadingSpinner />}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-      {/* Protected Layout Routes */}
-      <Route element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales']} />}>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/leads" element={<Leads />} />
-          <Route path="/tasks" element={<Tasks />} />
+        {/* Protected Layout Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['admin', 'manager', 'sales']} />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/leads" element={<Leads />} />
+            <Route path="/tasks" element={<Tasks />} />
 
-          {/* Admin Only */}
-          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-            <Route path="/users" element={<Users />} />
+            {/* Admin Only */}
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+              <Route path="/users" element={<Users />} />
+            </Route>
           </Route>
         </Route>
-      </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

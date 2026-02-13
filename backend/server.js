@@ -6,6 +6,8 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const path = require('path');
 
+const compression = require('compression');
+
 dotenv.config();
 
 connectDB();
@@ -15,7 +17,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
-app.use(morgan('dev'));
+app.use(compression()); // Use Gzip compression
+
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
 
 // Static folder if production (optional, if implementing build later)
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));

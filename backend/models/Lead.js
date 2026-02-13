@@ -8,11 +8,16 @@ const leadSchema = mongoose.Schema({
     status: {
         type: String,
         enum: ['New', 'Contacted', 'Follow-Up', 'Interested', 'Converted', 'Lost', 'Prospect', 'Customer', 'WhatsApp'],
-        default: 'New'
+        default: 'New',
+        index: true
     },
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     notes: { type: String },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
 }, { timestamps: true });
+
+// Add compound index for common filters
+leadSchema.index({ status: 1, createdAt: -1 });
+leadSchema.index({ assignedTo: 1, status: 1 });
 
 module.exports = mongoose.model('Lead', leadSchema);

@@ -24,4 +24,9 @@ const taskSchema = mongoose.Schema({
     }],
 }, { timestamps: true });
 
+// Add indexes for faster querying
+taskSchema.index({ status: 1, dueDate: 1 });
+taskSchema.index({ assignedTo: 1, status: 1 });
+taskSchema.index({ leadId: 1 });
+
 module.exports = mongoose.model('Task', taskSchema);
